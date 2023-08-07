@@ -9,13 +9,6 @@ import subprocess
 from termcolor import colored
 
 
-def add(args):
-    result = args.num1 + args.num2
-    print(f"{args.num1} + {args.num2} = {result}")
-
-def subtract(args):
-    result = args.num1 - args.num2
-    print(f"{args.num1} - {args.num2} = {result}")
 
 
 
@@ -57,12 +50,14 @@ def get_changed_files_count(args):
 
     print(colored("Folders Changed Summary:", "cyan"))
     print(colored("Added\tDeleted\tFile Path", attrs=["underline"]))
-
+    count = 0
     for line in lines:
         added, deleted, path = line.split('\t')
         if added!='-' and deleted!='-':
             added = int(added) 
             deleted = int(deleted)
+            count+=added
+            count+=deleted
 
             added_colored = colored(str(added), "green")
 
@@ -70,6 +65,7 @@ def get_changed_files_count(args):
             deleted_colored = colored(str(deleted), "red")
 
             print(f"{added_colored}\t{deleted_colored}\t{path}")
+    print("Total number of changes :", count)
 
     # print("Standard Error:", stderr.decode("utf-8"))
     # output = subprocess.check_output(stderr=subprocess.STDOUT, universal_newlines=True)
@@ -98,9 +94,11 @@ def compare_files(args):
     print(colored("Files Changed Summary:", "cyan"))
     print(colored("Added\tDeleted\tFile Path", attrs=["underline"]))
 
+    count = 0
     for line in lines:
         added, deleted, path = line.split('\t')
         if added!='-' and deleted!='-':
+            count+=1
             added = int(added) 
             deleted = int(deleted)
 
@@ -110,6 +108,7 @@ def compare_files(args):
             deleted_colored = colored(str(deleted), "red")
 
             print(f"{added_colored}\t{deleted_colored}\t{path}")
+    print("\nTotal number of changes: ", added+deleted)
     
 
     command = ["git", "diff",  args.file1_path, args.file2_path ]
@@ -153,13 +152,7 @@ def main():
     parser_file.add_argument("folder2_path", type=str, help="file path")
     parser_file.set_defaults(func=get_changed_files_count)
     
-    
 
-    # Add sub-command for subtraction
-    parser_subtract = subparsers.add_parser("subtract", help="Subtract two numbers")
-    parser_subtract.add_argument("num1", type=float, help="First number")
-    parser_subtract.add_argument("num2", type=float, help="Second number")
-    parser_subtract.set_defaults(func=subtract)
 
     args = parser.parse_args()
     if hasattr(args, "func"):
