@@ -7,6 +7,7 @@ import difflib
 import filecmp
 import subprocess
 from termcolor import colored
+from cfg import calculate_cyclomatic_complexity_per_function
 
 
 
@@ -96,18 +97,19 @@ def compare_files(args):
 
     count = 0
     for line in lines:
-        added, deleted, path = line.split('\t')
-        if added!='-' and deleted!='-':
-            count+=1
-            added = int(added) 
-            deleted = int(deleted)
+        if(len(line)>0):
+            added, deleted, path = line.split('\t')
+            if added!='-' and deleted!='-':
+                count+=1
+                added = int(added) 
+                deleted = int(deleted)
 
-            added_colored = colored(str(added), "green")
+                added_colored = colored(str(added), "green")
 
-            
-            deleted_colored = colored(str(deleted), "red")
+                
+                deleted_colored = colored(str(deleted), "red")
 
-            print(f"{added_colored}\t{deleted_colored}\t{path}")
+                print(f"{added_colored}\t{deleted_colored}\t{path}")
     print("\nTotal number of changes: ", added+deleted)
     
 
@@ -131,13 +133,17 @@ def sloc(args):
     
 
 def main():
-    parser = argparse.ArgumentParser(description="Simple command-line calculator tool.")
+    parser = argparse.ArgumentParser(description="Simple command-lines tool.")
     subparsers = parser.add_subparsers(title="Operations", dest="operation")
 
-    # Add sub-command for addition
+  
     parser_sloc = subparsers.add_parser("sloc", help="Find the source lines of code of a file")
     parser_sloc.add_argument("path", type=str, help="file path")
     parser_sloc.set_defaults(func=sloc)
+
+    parser_sloc = subparsers.add_parser("cfg", help="Find the source lines of code of a file")
+    parser_sloc.add_argument("path", type=str, help="file path")
+    parser_sloc.set_defaults(func=calculate_cyclomatic_complexity_per_function)
 
 
 
